@@ -1,6 +1,14 @@
 default:
+  image: docker:cli
+  services:
+    - docker:dind-rootless
   tags:
-    - shell
+    - docker-in-docker
+
+variables:
+  FF_USE_FASTZIP: 1
+  FF_NETWORK_PER_BUILD: 1
+  DOCKER_TLS_CERTDIR: "/certs"
 
 stages:
   - builder
