@@ -1,5 +1,5 @@
 default:
-  image: docker:cli
+  image: docker:git
   services:
     - docker:dind-rootless
   tags:

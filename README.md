@@ -8,7 +8,7 @@ gitlab-runner register \
   --request-concurrency 4 \
   --url "${GLURL}" --token "${GLTOKEN}" --executor docker \
   --description "Docker in Docker" \
-  --docker-image "docker:cli" \
+  --docker-image "docker:git" \
   --docker-pull-policy always --docker-pull-policy always \
   --docker-volumes "/certs/client" \
   --docker-services_privileged=true \
