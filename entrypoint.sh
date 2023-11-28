@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eu
 
 # first arg is `-f` or `--some-option`
@@ -45,18 +45,21 @@ fi
 
 if [ -n "${DOCKER_CREATE_CONTEXT:-}" ] && [ -n "${DOCKER_CERT_PATH:-}" ] && [ -n "${DOCKER_HOST:-}" ]
 then
-  if ! docker context inspect dind &>/dev/null
+  if ! docker context inspect dind >/dev/null 2>/dev/null
   then
-    SAVE_DOCKER_HOST="${DOCKER_HOST}"
-    SAVE_DOCKER_CERT_PATH="${DOCKER_CERT_PATH}"
-    SAVE_DOCKER_TLS_VERIFY="${DOCKER_TLS_VERIFY:-}"
-    SAVE_DOCKER_TLS_CERTDIR="${DOCKER_TLS_CERTDIR:-}"
+    export SAVE_DOCKER_HOST="${DOCKER_HOST}"
+    export SAVE_DOCKER_CERT_PATH="${DOCKER_CERT_PATH}"
+    export SAVE_DOCKER_TLS_VERIFY="${DOCKER_TLS_VERIFY:-}"
+    export SAVE_DOCKER_TLS_CERTDIR="${DOCKER_TLS_CERTDIR:-}"
     unset DOCKER_HOST
     unset DOCKER_CERT_PATH
     unset DOCKER_TLS_VERIFY
     unset DOCKER_TLS_CERTDIR
-    docker context create dind --docker "host=${SAVE_DOCKER_HOST},ca=${SAVE_DOCKER_CERT_PATH}/ca.pem,cert=${SAVE_DOCKER_CERT_PATH}/cert.pem,key=${SAVE_DOCKER_CERT_PATH}/key.pem"
-    docker context use dind
+    if ! docker context create dind --docker "host=${SAVE_DOCKER_HOST},ca=${SAVE_DOCKER_CERT_PATH}/ca.pem,cert=${SAVE_DOCKER_CERT_PATH}/cert.pem,key=${SAVE_DOCKER_CERT_PATH}/key.pem"
+    then
+      echo "unable to create context: dind ..."
+    fi
   fi
+  docker context use dind
 fi
 exec "$@"
