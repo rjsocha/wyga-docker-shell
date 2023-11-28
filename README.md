@@ -16,6 +16,6 @@ gitlab-runner register \
   --docker-allowed-privileged-services='docker:dind-rootless' \
   --docker-allowed-privileged-services='docker:*-dind' \
   --docker-allowed-privileged-services='docker:dind' \
-  --feature-flags FF_NETWORK_PER_BUILD=true \
-  --feature-flags FF_USE_FASTZIP=true
+  --feature-flags FF_NETWORK_PER_BUILD \
+  --feature-flags FF_USE_FASTZIP
 ```
