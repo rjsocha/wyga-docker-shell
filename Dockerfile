@@ -13,8 +13,6 @@ RUN apt-get update -qq && \
     apt-get install docker-ce-cli docker-buildx-plugin docker-compose-plugin && \
     apt-get clean all && \
     find /var/lib/apt/lists/ -type f -delete
-WORKDIR /.entrypoint
-COPY --chmod=755 entrypoint.sh docker-shell
-
+COPY --chmod=755 entrypoint.sh /.entrypoint/docker-shell
 ENTRYPOINT ["/.entrypoint/docker-shell"]
 CMD ["bash"]
