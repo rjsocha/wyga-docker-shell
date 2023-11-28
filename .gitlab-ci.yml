@@ -1,13 +1,11 @@
 default:
   image: docker:git
   services:
-    - docker:dind-rootless
+    - docker:dind
   tags:
     - docker-in-docker
 
 variables:
-  FF_USE_FASTZIP: 1
-  FF_NETWORK_PER_BUILD: 1
   DOCKER_TLS_CERTDIR: "/certs"
 
 stages:
