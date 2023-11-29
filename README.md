@@ -6,7 +6,6 @@ export GLTOKEN="xxxxxxxxxxxxxxx"
 export GLURL="https://gitlab.xxxxxx"
 gitlab-runner register \
   --non-interactive \
-  --request-concurrency 4 \
   --url "${GLURL}" --token "${GLTOKEN}" --executor docker \
   --description "docker-in-docker" \
   --docker-image "docker:git" \
