@@ -1,9 +1,14 @@
 # Runner setup
- 
 
 ```
-export GLTOKEN="xxxxxxxxxxxxxxx"
-export GLURL="https://gitlab.xxxxxx"
+{
+  export GLTOKEN="xxxxxxxxxxxxxxx"
+  export GLURL="https://gitlab.xxxxxx"
+}
+```
+
+```
+{
 gitlab-runner register \
   --non-interactive \
   --url "${GLURL}" --token "${GLTOKEN}" --executor docker \
@@ -18,4 +23,5 @@ gitlab-runner register \
   --docker-allowed-privileged-services='docker:dind' \
   --feature-flags FF_NETWORK_PER_BUILD \
   --feature-flags FF_USE_FASTZIP
+}
 ```
