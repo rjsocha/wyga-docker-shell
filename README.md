@@ -37,6 +37,17 @@ gitlab-runner register \
 }
 ```
 
+## Cleanup job
+
+```
+ (crontab -l 2>/dev/null; \
+ printf -- '30 5 * * *'; \
+ printf -- ' docker volume prune --all --force >/dev/null &&'; \
+ printf -- ' docker system prune --force >/dev/null\n'; \
+ printf -- '30 4 * * 0'; \
+ printf -- ' docker system prune --force --all >/dev/null\n';) | crontab -
+```
+
 ## Parameter Descriptions
 
 Allows GitLab Runner to retry image download if the first attempt fails
@@ -51,14 +62,4 @@ Allows to use images from docker.io and via [Gitlab's Dependency Proxy](https://
 ```
  --docker-allowed-privileged-services='**/docker:dind'
  --docker-allowed-privileged-services='**/docker:*-dind'
-```
-## Cleanup job
-
-```
- (crontab -l 2>/dev/null; \
- printf -- '30 5 * * *'; \
- printf -- ' docker volume prune --all --force >/dev/null &&'; \
- printf -- ' docker system prune --force >/dev/null\n'; \
- printf -- '30 4 * * 0'; \
- printf -- ' docker system prune --force --all >/dev/null\n';) | crontab -
 ```
