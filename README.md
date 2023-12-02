@@ -52,3 +52,10 @@ Allows to use images from docker.io and via [Gitlab's Dependency Proxy](https://
  --docker-allowed-privileged-services='**/docker:dind'
  --docker-allowed-privileged-services='**/docker:*-dind'
 ```
+## Cleanup job
+
+```
+ (crontab -l 2>/dev/null; \
+ printf -- '30 5 * * *'; \
+ printf -- ' docker system  prune --volumes --all --force >/dev/null\n';) | crontab -
+```
