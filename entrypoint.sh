@@ -55,11 +55,11 @@ then
   unset DOCKER_TLS_CERTDIR
   if ! docker context inspect dind >/dev/null 2>/dev/null
   then
-    if ! docker context create dind --docker "host=${SAVE_DOCKER_HOST},ca=${SAVE_DOCKER_CERT_PATH}/ca.pem,cert=${SAVE_DOCKER_CERT_PATH}/cert.pem,key=${SAVE_DOCKER_CERT_PATH}/key.pem" >/dev/null
+    if ! docker context create dind --docker "host=${SAVE_DOCKER_HOST},ca=${SAVE_DOCKER_CERT_PATH}/ca.pem,cert=${SAVE_DOCKER_CERT_PATH}/cert.pem,key=${SAVE_DOCKER_CERT_PATH}/key.pem" &>/dev/null
     then
       echo "unable to create context: dind ..."
     fi
   fi
-  docker context use dind >/dev/null 
+  docker context use dind &>/dev/null 
 fi
 exec "$@"
