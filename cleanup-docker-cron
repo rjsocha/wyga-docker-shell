@@ -1,5 +1,0 @@
-#!/bin/bash
-{
-  /usr/share/gitlab-runner/clear-docker-cache
-  docker image prune -f
-} >/dev/null

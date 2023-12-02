@@ -1,18 +1,18 @@
-default:
-  image: docker:git
-  services:
-    - docker:dind
-  tags:
-    - docker-in-docker
+include:
+  - project: ci/hub
+    ref:     v1.x
+    file:    dind.yaml
 
-variables:
-  DOCKER_TLS_CERTDIR: "/certs"
+workflow:
+  rules:
+    - if: $BUILD_ME
 
 stages:
-  - builder
+  - docker-shell
 
 Image Builder:
-  stage: builder
+  stage: docker-shell
+  image: ${GL_DPROXY}/docker:git
   variables:
     GIT_DEPTH: 1
   script:
