@@ -14,9 +14,9 @@ image: wyga/docker-shell:latest
 
 ```
 {
-  export GLTOKEN="xxxxxxxxxxxxxxx"
-  export GLURL="https://gitlab.xxxxxx"
-  export GRNAME="docker-in-docker"
+  GLTOKEN="xxxxxxxxxxxxxxx"
+  GLURL="https://gitlab.xxxxxx"
+  GRNAME="docker-in-docker"
 }
 ```
 
@@ -29,7 +29,7 @@ gitlab-runner register \
   --docker-image "docker:git" \
   --docker-pull-policy always --docker-pull-policy always \
   --docker-volumes "/certs/client" \
-  --docker-services-privileged=true \
+  --docker-services_privileged=true \
   --docker-allowed-privileged-services='**/docker:dind' \
   --docker-allowed-privileged-services='**/docker:*-dind' \
   --feature-flags FF_NETWORK_PER_BUILD \
