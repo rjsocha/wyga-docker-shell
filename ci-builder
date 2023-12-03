@@ -1,5 +1,13 @@
 #!/bin/sh
 set -eu
 echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}" &>/dev/null
+
 docker build -t "${CI_REGISTRY_IMAGE}" .
 docker push "${CI_REGISTRY_IMAGE}"
+
+if [[ -n ${DOCKER_IO_USER:-} ]] && [[ -n ${DOCKER_IO_TOKEN:-} ]] && [[ -z ${NO_DOCKER_IO:-} ]]
+then
+  echo "${DOCKER_IO_TOKEN}" | docker login -u "${DOCKER_IO_USER}" --password-stdin &>/dev/null
+  echo docker tag "${CI_REGISTRY_IMAGE}" "${DOCKER_IO_PATH}/${CI_PROJECT_NAME}"
+  echo docker push "${DOCKER_IO_PATH}/${CI_PROJECT_NAME}"
+fi
