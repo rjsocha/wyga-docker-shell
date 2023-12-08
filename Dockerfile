@@ -1,7 +1,8 @@
 FROM ubuntu:22.04
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_PRIORITY=critical
 RUN apt-get update -qq && \
-    apt-get -o APT::Get::Always-Include-Phased-Updates=true dist-upgrade -qq && \
+    apt-get -o "APT::Get::Always-Include-Phased-Updates=true" -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" dist-upgrade -qq && \
     apt-get install ca-certificates curl gnupg wget git --no-install-recommends -qq && \
     install -m 0755 -d /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
@@ -10,8 +11,8 @@ RUN apt-get update -qq && \
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
     tee /etc/apt/sources.list.d/docker.list > /dev/null && \
     apt-get update -qq && \
-    apt-get install docker-ce-cli docker-buildx-plugin docker-compose-plugin && \
-    apt-get clean all && \
+    apt-get install docker-ce-cli docker-buildx-plugin docker-compose-plugin -qq && \
+    apt-get clean && \
     find /var/lib/apt/lists/ -type f -delete
 COPY --chmod=755 entrypoint.sh /.entrypoint/docker-shell
 ENTRYPOINT ["/.entrypoint/docker-shell"]
