@@ -1,6 +1,6 @@
 # wyga/docker-shell
 
-This Docker image is designed specifically for serving as a GitLab CI runner in Docker in Docker builds. It's built on Ubuntu 22.04 and comes with **bash** present.
+This Docker image is designed specifically for serving as a GitLab CI image in Docker in Docker builds. It's built on Ubuntu 22.04 and comes with **bash** present.
 
 When the environment variable **DOCKER_CREATE_CONTEXT** is present, the image automatically initiates the creation of a Docker context named **dind** configured for the **docker** service.
 
