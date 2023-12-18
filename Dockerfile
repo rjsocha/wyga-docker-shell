@@ -7,7 +7,7 @@ RUN apt-get update -qq && \
 COPY docker/docker.list /etc/apt/sources.list.d/docker.list
 COPY docker/docker.gpg /etc/apt/keyrings/docker.gpg
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends docker-ce-cli docker-buildx-plugin docker-compose-plugin -qq && \
+    apt-get install --no-install-recommends docker-ce-cli docker-buildx-plugin -qq && \
     apt-get clean && \
     find /var/lib/apt/lists/ -type f -delete
 COPY --chmod=755 entrypoint.sh /.entrypoint/docker-shell
