@@ -1,13 +1,20 @@
 #!/bin/sh
 set -eu
-echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}" &>/dev/null
 
-docker build -t "${CI_REGISTRY_IMAGE}" .
-docker push "${CI_REGISTRY_IMAGE}"
+export PRODUCTION_PLATFORMS="linux/amd64"
+PRODUCTION_OUTPUT_IMAGE="type=image,push=true,compression=zstd,compression-level=22,oci-mediatypes=true"
+BUILDX_CONFIG_PRODUCTION=()
+BUILDX_CONFIG_PRODUCTION+=( "--platform" "${PRODUCTION_PLATFORMS}" )
+BUILDX_CONFIG_PRODUCTION+=( "--provenance" "false" )
+BUILDX_CONFIG_PRODUCTION+=( "--progress" "plain" )
+BUILDX_CONFIG_PRODUCTION+=( "--output" "${PRODUCTION_OUTPUT_IMAGE}" )
+BUILDX_CONFIG_PRODUCTION+=( "--pull" )
 
 if [ -n "${DOCKER_IO_USER:-}" ] && [ -n "${DOCKER_IO_TOKEN:-}" ] && [ -z "${NO_DOCKER_IO:-}" ]
 then
   echo "${DOCKER_IO_TOKEN}" | docker login -u "${DOCKER_IO_USER}" --password-stdin &>/dev/null
-  docker tag "${CI_REGISTRY_IMAGE}" "${DOCKER_IO_PATH}/${CI_PROJECT_NAME}"
-  docker push "${DOCKER_IO_PATH}/${CI_PROJECT_NAME}"
+  docker buildx build -t wyga/docker-shell:latest ${BUILDX_CONFIG_PRODUCTION[@]} -f Dockerfile .
+else
+  echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}" &>/dev/null
+  docker buildx build -t "${CI_REGISTRY_IMAGE}" ${BUILDX_CONFIG_PRODUCTION[@]} -f Dockerfile .
 fi

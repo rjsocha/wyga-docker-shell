@@ -1,9 +1,9 @@
-FROM ubuntu:22.04
+FROM ubuntu:22.04 AS mold
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBIAN_PRIORITY=critical
 RUN apt-get update -qq && \
     apt-get -o "APT::Get::Always-Include-Phased-Updates=true" -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" dist-upgrade -qq && \
-    apt-get install ca-certificates curl gnupg wget git jq python3-minimal gawk vim-tiny --no-install-recommends -qq && \
+    apt-get install ca-certificates curl gnupg wget git jq python3-minimal gawk vim-tiny python-is-python3 --no-install-recommends -qq && \
     install -m 0755 -d /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     echo \
@@ -15,5 +15,7 @@ RUN apt-get update -qq && \
     apt-get clean && \
     find /var/lib/apt/lists/ -type f -delete
 COPY --chmod=755 entrypoint.sh /.entrypoint/docker-shell
+FROM scratch
+COPY --from=mold / /
 ENTRYPOINT ["/.entrypoint/docker-shell"]
 CMD ["bash"]
