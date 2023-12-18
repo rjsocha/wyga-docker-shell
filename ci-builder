@@ -6,6 +6,7 @@ if [ -n "${DOCKER_IO_USER:-}" ] && [ -n "${DOCKER_IO_TOKEN:-}" ] && [ -z "${NO_D
 then
   echo "${DOCKER_IO_TOKEN}" | docker login -u "${DOCKER_IO_USER}" --password-stdin &>/dev/null
   docker buildx build -t wyga/docker-shell:latest ${config} -f Dockerfile .
+  docker buildx build -t wyga/docker-shell:alpine ${config} -f Dockerfile.alpine .
 else
   echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}" &>/dev/null
   docker buildx build -t "${CI_REGISTRY_IMAGE}" ${config} -f Dockerfile .
