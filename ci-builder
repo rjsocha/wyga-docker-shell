@@ -1,20 +1,12 @@
 #!/bin/sh
 set -eu
 
-export PRODUCTION_PLATFORMS="linux/amd64"
-PRODUCTION_OUTPUT_IMAGE="type=image,push=true,compression=zstd,compression-level=22,oci-mediatypes=true"
-BUILDX_CONFIG_PRODUCTION=()
-BUILDX_CONFIG_PRODUCTION+=( "--platform" "${PRODUCTION_PLATFORMS}" )
-BUILDX_CONFIG_PRODUCTION+=( "--provenance" "false" )
-BUILDX_CONFIG_PRODUCTION+=( "--progress" "plain" )
-BUILDX_CONFIG_PRODUCTION+=( "--output" "${PRODUCTION_OUTPUT_IMAGE}" )
-BUILDX_CONFIG_PRODUCTION+=( "--pull" )
-
+config="--platform linux/amd64 --provenance false --progress plain --output type=image,push=true,compression=zstd,compression-level=22,oci-mediatypes=true"
 if [ -n "${DOCKER_IO_USER:-}" ] && [ -n "${DOCKER_IO_TOKEN:-}" ] && [ -z "${NO_DOCKER_IO:-}" ]
 then
   echo "${DOCKER_IO_TOKEN}" | docker login -u "${DOCKER_IO_USER}" --password-stdin &>/dev/null
-  docker buildx build -t wyga/docker-shell:latest ${BUILDX_CONFIG_PRODUCTION[@]} -f Dockerfile .
+  docker buildx build -t wyga/docker-shell:latest ${config} -f Dockerfile .
 else
   echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}" &>/dev/null
-  docker buildx build -t "${CI_REGISTRY_IMAGE}" ${BUILDX_CONFIG_PRODUCTION[@]} -f Dockerfile .
+  docker buildx build -t "${CI_REGISTRY_IMAGE}" ${config} -f Dockerfile .
 fi
