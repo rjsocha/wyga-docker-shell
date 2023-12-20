@@ -12,7 +12,7 @@ stages:
 
 Image Builder:
   stage: docker-shell
-  image: ${GL_DPROXY}/docker:git
+  image: ${DPROXY}docker:git
   variables:
     GIT_DEPTH: 1
   script:
