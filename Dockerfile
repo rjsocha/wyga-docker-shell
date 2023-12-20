@@ -11,6 +11,7 @@ RUN apt-get update -qq && \
     apt-get clean && \
     find /var/lib/apt/lists/ -type f -delete
 COPY --chmod=755 entrypoint.sh /.entrypoint/docker-shell
+COPY --chmod=755 extra/deploypress-client /usr/bin/deploypress-client
 FROM scratch
 COPY --from=mold / /
 ENTRYPOINT ["/.entrypoint/docker-shell"]

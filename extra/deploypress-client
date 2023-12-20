@@ -1,0 +1,229 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+#::VERSION:4
+# NAME:<NAME>
+# TASK:<NAME-OF-TASK>
+# ASYNC:YES|NO
+# URL:<URL>
+
+declare -A PARAM
+declare -A OPTS
+
+# Defaults
+OPTS['ASYNC']="false"
+if [[ -n ${CI_REGISTRY:-} ]]
+then
+  PARAM['registry']="${CI_REGISTRY}"
+fi
+dryrun=0
+while [[ $# -gt 0 ]]
+do
+  opt="${1}"
+  cmd="${opt^^}"
+  case "${cmd}" in
+    DRYRUN:*)
+        dryrun=1
+        ;;
+    @*)
+        param="${opt:1}"
+        if [[ ${param} =~ : ]]
+        then
+          name="${param%%:*}"
+          file="${param#*:}"
+          name="${name,,}"
+          if [[ ${name} =~ ^[a-z][a-z0-9_]{0,128}[a-z0-9]$ ]]
+          then
+            if [[ -f ${file} ]]
+            then
+              if content="$(base64 -w 0 "${file}")"
+              then
+                if [[ ${dryrun} -eq 0 ]]
+                then
+                  PARAM[${name}]="${content}"
+                else
+                  PARAM[${name}]="@${file}"
+                fi
+              else
+                printf -- "ERROR: unable to process file: %s ...\n" "${file}" >&2
+                exit 150
+              fi
+            else
+              printf -- "ERROR: unable to locate file: %s ...\n" "${file}" >&2
+              exit 150
+            fi
+          else
+            printf -- "ERROR: @: name is incorrect: %s\n" "${name}" >&2
+            exit 150
+          fi
+        else
+          printf -- "ERROR: @: syntax error: %s\n" "${param}" >&2
+          exit 150
+        fi
+        ;;
+    +*)
+        param="${opt:1}"
+        if [[ ${param} =~ : ]]
+        then
+          name="${param%%:*}"
+          name="${name,,}"
+          value="${param#*:}"
+          if [[ ${name} =~ ^[a-z][a-z0-9_]{0,128}[a-z0-9]$ ]]
+          then
+            PARAM[${name}]="${value}"
+          else
+            printf -- "ERROR: @: name is incorrect: %s\n" "${name}" >&2
+            exit 150
+          fi
+        else
+          printf -- "ERROR: @: syntax error: %s\n" "${param}" >&2
+          exit 150
+        fi
+        ;;
+    NAME:?*)
+        OPTS['NAME']="${opt:5}"
+        ;;
+    TASK:?*)
+        OPTS['TASK']="${opt:5}"
+        ;;
+    URL:?*)
+        OPTS['URL']="${opt:4}"
+        ;;
+    TOKEN:?*)
+        OPTS['TOKEN']="${opt:6}"
+        ;;
+    ENDPOINT:?*)
+        OPTS['ENDPOINT']="${opt:9}"
+        ;;
+    ASYNC:YES)
+        OPTS['ASYNC']="true"
+        ;;
+    ASYNC:NO)
+        OPTS['ASYNC']="false"
+        ;;
+    *)
+      printf -- "WARNING: unknow option: '%s'\n" "${opt}"
+  esac
+  shift
+done
+if [[ -z ${OPTS['TASK']+exists} ]]
+then
+  printf -- "ERROR: missing required TASK parameter ...\n" >&2
+  exit 5
+fi
+
+if [[ -z ${OPTS['URL']+exists} ]]
+then
+  printf -- "ERROR: missing required URL parameter ...\n" >&2
+  exit 5
+fi
+
+if [[ -z ${OPTS['NAME']+exists} ]]
+then
+  printf -- "ERROR: missing required NAME parameter ...\n" >&2
+  exit 10
+fi
+
+if [[ -z ${OPTS['TOKEN']+exists} ]]
+then
+  OPTS['TOKEN']="DEPLOYPRESS_TOKEN"
+fi
+if [[ -z ${OPTS['ENDPOINT']+exists} ]]
+then
+  OPTS['ENDPOINT']="DEPLOYPRESS_ENDPOINT"
+fi
+
+if [[ -n ${OPTS['MANIFEST']+exists} ]]
+then
+  if [[ -s ${OPTS['MANIFEST']} ]]
+  then
+    OPTS['MANIFEST']="$(base64 -w 0 "${OPTS['MANIFEST']}")"
+  else
+    printf -- "ERROR: missing MANIFEST file ...\n" >&2
+    exit 13
+  fi
+fi
+endpoint="${OPTS['ENDPOINT']}"
+token="${OPTS['TOKEN']}"
+
+if [[ -z ${!token:-} ]]
+then
+  if [[ ${dryrun} -eq 1 ]]
+  then
+    token="dry-run"
+  else
+    printf -- "ERROR: unable to locate token variable: %s\n" "${token}" >&2
+    exit 15
+  fi
+else
+  token="${!token}"
+fi
+if [[ -z ${!endpoint:-} ]]
+then
+  if [[ ${dryrun} -eq 1 ]]
+  then
+    endpoint="dry.run"
+  else
+    printf -- "ERROR: unable to locate endpoint variable: %s\n" "${endpoint}" >&2
+    exit 15
+  fi
+else
+  endpoint="${!endpoint}"
+fi
+
+if ! [[ ${endpoint} =~ ^[a-z0-9-]+\.([a-z0-9-]\.?)+$ ]]
+then
+  printf -- "ERROR: ENDPOINT should be hostname not URL: '%s' ...\n" "${endpoint}" >&2
+  exit 19
+fi
+
+payload='{ "version": "4"'
+payload+=",$(printf '"async": %s' "${OPTS['ASYNC']}")"
+payload+=",$(printf '"name": "%s"' "${OPTS['NAME']}")"
+payload+=",$(printf '"url": "%s"' "${OPTS['URL']}")"
+payload+=",$(printf '"task": "%s"' "${OPTS['TASK']}")"
+payload+=",$(printf '"runtimeversion": "%s"' "${SITE_CI_RUNTIME_VERSION:-[MISSING]}")"
+if [[ ${#PARAM[@]} -gt 0 ]]
+then
+  payload+=',"tags": ['
+  first=0
+  for name in ${!PARAM[@]}
+  do
+    value="${PARAM[${name}]}"
+    [[ ${first} -eq 0 ]] || payload+=", "
+    # json format quotations
+    # this can be quite slow on longer vaulues
+    quote="${value//\\/\\\\}"
+    quote="${quote//\"/\\\"}"
+    payload+="{ $(printf '"name": "%s", "value": "%s"' "${name}" "${quote}") }"
+    (( first++ )) || true
+  done
+  payload+="]"
+fi
+
+# Metadata
+payload+=',"metadata": { '
+payload+="$(printf '"instance": "%s"' "${CI_SERVER_HOST:-[MISSING]}")"
+payload+=", $(printf '"project": "%s"' "${CI_PROJECT_URL:-[MISSING]}")"
+payload+=", $(printf '"pipeline": "%s"' "${CI_PIPELINE_URL:-[MISSING]}")"
+payload+=", $(printf '"username": "%s"' "${GITLAB_USER_NAME:-[MISSING]}")"
+payload+=", $(printf '"userlogin": "%s"' "${GITLAB_USER_LOGIN:-[MISSING]}")"
+# Metadata
+payload+='}'
+# Final
+payload+='}'
+if [[ ${dryrun} -eq 0 ]]
+then
+  exec curl -skf -H 'Content-Type: application/json' -d "${payload}" --user "${token}" "https://${endpoint}:4343/dispatch"
+else
+  printf -- "ENDPOINT: https://%s:4343/dispatch\n" "${endpoint}"
+  printf -- "TOKEN:    %s\n" "${token}"
+  if command -v jq &>/dev/null
+  then
+    printf "%s" "${payload}"
+    printf "%s" "${payload}" | jq .
+  else
+    printf "%s" "${payload}"
+  fi
+fi
