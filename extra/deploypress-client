@@ -8,6 +8,7 @@ IFS=$'\n\t'
 # ASYNC:YES|NO
 
 declare -A PARAM=()
+declare -A FILES=()
 declare -A OPTS
 
 # Defaults
@@ -36,13 +37,13 @@ do
           then
             if [[ -f ${file} ]]
             then
-              if content="$(base64 -w 0 "${file}")"
+              if content="$(cat "${file}" | gzip -9cn | base64 -w 0)"
               then
                 if [[ ${dryrun} -eq 0 ]]
                 then
-                  PARAM[${name}]="${content}"
+                  FILES[${name}]="${content}"
                 else
-                  PARAM[${name}]="@${file}"
+                  FILES[${name}]="@${file}"
                 fi
               else
                 printf -- "ERROR: unable to process file: %s ...\n" "${file}" >&2
@@ -103,6 +104,7 @@ do
   esac
   shift
 done
+
 if [[ -z ${OPTS['TASK']+exists} ]]
 then
   printf -- "ERROR: missing required TASK parameter ...\n" >&2
@@ -124,16 +126,6 @@ then
   OPTS['ENDPOINT']="DEPLOYPRESS_ENDPOINT"
 fi
 
-if [[ -n ${OPTS['MANIFEST']+exists} ]]
-then
-  if [[ -s ${OPTS['MANIFEST']} ]]
-  then
-    OPTS['MANIFEST']="$(base64 -w 0 "${OPTS['MANIFEST']}")"
-  else
-    printf -- "ERROR: missing MANIFEST file ...\n" >&2
-    exit 13
-  fi
-fi
 endpoint="${OPTS['ENDPOINT']}"
 token="${OPTS['TOKEN']}"
 
@@ -191,6 +183,20 @@ then
   payload+="]"
 fi
 
+if [[ ${#FILES[@]} -gt 0 ]]
+then
+  payload+=',"files": ['
+  first=0
+  for name in ${!FILES[@]}
+  do
+    value="${FILES[${name}]}"
+    [[ ${first} -eq 0 ]] || payload+=", "
+    payload+="{ $(printf '"name": "%s", "content": "%s"' "${name}" "${value}") }"
+    (( first++ )) || true
+  done
+  payload+="]"
+fi
+
 # Metadata
 payload+=',"metadata": { '
 payload+="$(printf '"instance": "%s"' "${CI_SERVER_HOST:-[MISSING]}")"
@@ -210,7 +216,6 @@ else
   printf -- "TOKEN:    %s\n" "${token}"
   if command -v jq &>/dev/null
   then
-    printf "%s" "${payload}"
     printf "%s" "${payload}" | jq .
   else
     printf "%s" "${payload}"
