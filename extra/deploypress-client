@@ -6,9 +6,8 @@ IFS=$'\n\t'
 # NAME:<NAME>
 # TASK:<NAME-OF-TASK>
 # ASYNC:YES|NO
-# URL:<URL>
 
-declare -A PARAM
+declare -A PARAM=()
 declare -A OPTS
 
 # Defaults
@@ -87,9 +86,6 @@ do
     TASK:?*)
         OPTS['TASK']="${opt:5}"
         ;;
-    URL:?*)
-        OPTS['URL']="${opt:4}"
-        ;;
     TOKEN:?*)
         OPTS['TOKEN']="${opt:6}"
         ;;
@@ -110,12 +106,6 @@ done
 if [[ -z ${OPTS['TASK']+exists} ]]
 then
   printf -- "ERROR: missing required TASK parameter ...\n" >&2
-  exit 5
-fi
-
-if [[ -z ${OPTS['URL']+exists} ]]
-then
-  printf -- "ERROR: missing required URL parameter ...\n" >&2
   exit 5
 fi
 
@@ -181,7 +171,6 @@ fi
 payload='{ "version": "4"'
 payload+=",$(printf '"async": %s' "${OPTS['ASYNC']}")"
 payload+=",$(printf '"name": "%s"' "${OPTS['NAME']}")"
-payload+=",$(printf '"url": "%s"' "${OPTS['URL']}")"
 payload+=",$(printf '"task": "%s"' "${OPTS['TASK']}")"
 payload+=",$(printf '"runtimeversion": "%s"' "${SITE_CI_RUNTIME_VERSION:-[MISSING]}")"
 if [[ ${#PARAM[@]} -gt 0 ]]
