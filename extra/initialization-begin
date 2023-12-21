@@ -1,0 +1,2 @@
+#!/bin/sh
+echo -e "\e[0Ksection_start:`date +%s`:initialization[collapsed=true]\r\e[0KInitialization"

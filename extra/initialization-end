@@ -1,0 +1,2 @@
+#!/bin/sh
+echo -e "\e[0Ksection_end:`date +%s`:initialization\r\e[0K"
