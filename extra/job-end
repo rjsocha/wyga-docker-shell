@@ -1,0 +1,2 @@
+#!/bin/sh
+echo -e "\e[0Ksection_end:`date +%s`:_ci_output_\r\e[0K"
