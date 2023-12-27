@@ -5,7 +5,7 @@ if [[ -n ${SKIP_CLEANUP:-} ]]
 then
   exit 0
 fi
-ci/shadow-text "CLEANUP"
+rstext "CLEANUP"
 docker system prune --filter=until=72h --force
 docker buildx prune --builder "${DOCKER_BUILDER}" --all --filter=until=72h --force --verbose
 exit 0

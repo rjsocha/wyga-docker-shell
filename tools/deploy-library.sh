@@ -1,9 +1,9 @@
 #!/bin/bash
 
 check_commands() {
-  if ! command -v shadow-text &>/dev/null
+  if ! command -v rstext &>/dev/null
   then
-    printf -- "ERROR: missing '%s' command ...\n" "shadow-text"
+    printf -- "ERROR: missing '%s' command ...\n" "rstext"
     return 100
   fi
   if ! command -v gawk &>/dev/null
@@ -78,7 +78,7 @@ __failed() {
   end_ci__
   __begin panic "Failed ..."
     printf -- "\n"
-    shadow-text 6 FAILED
+    rstext red:yellow FAILED
     [[ -z ${1:-} ]] || _printf -- "{R}FATAL:{Y} %s ...\n" "${1}"
   end__
   exit 100
