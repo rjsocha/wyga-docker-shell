@@ -78,7 +78,7 @@ __failed() {
   end_ci__
   __begin panic "Failed ..."
     printf -- "\n"
-    rstext red:yellow FAILED
+    rstext red:bwhite FAILED
     [[ -z ${1:-} ]] || _printf -- "{R}FATAL:{Y} %s ...\n" "${1}"
   end__
   exit 100
