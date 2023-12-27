@@ -1,0 +1,6 @@
+#!/bin/bash
+if [[ -n "${1:-}" ]]
+then
+  exec docker run --rm -q --pull always "${1}" php -r 'echo PHP_VERSION;'
+fi
+exit 100

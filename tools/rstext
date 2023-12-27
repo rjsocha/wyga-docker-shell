@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+set -euf
+
+tokenize() {
+local i text ascii char token
+  text="${1}"
+  for (( i=0;i<${#text};i++))
+  do
+    char="${text:$i:1}"
+    printf -v ascii "%d" "'${char^^}"
+    if [[ ${ascii} -lt 32 ]] || [[ ${ascii} -ge 127 ]]
+    then
+      continue
+    fi
+    token=$(( ascii - 32 )) || true
+    if [[ ${token} -ge 91 ]]
+    then
+      token=$(( token - 26 )) || true
+    fi
+    TOKENS+=( "${token}" )
+  done
+}
+
+render() {
+local row line idx token
+  for row in 0 1 2 3 4 5
+  do
+    for token in ${TOKENS[@]}
+    do
+      idx=$(( token * 6 + row ))
+      line="${__GLYPH[${idx}]}"
+      line="${line//@/\\e[0m}"
+      if [[ -n ${SCHEME["${SELECT}.${row}.A"]+set} ]]
+      then
+        line="${line//A/${SCHEME["${SELECT}.${row}.A"]}}"
+        line="${line//B/${SCHEME["${SELECT}.${row}.B"]}}"
+      else
+        line="${line//A/${SCHEME["${SELECT}.A"]}}"
+        line="${line//B/${SCHEME["${SELECT}.B"]}}"
+      fi
+      printf -- "${line}"
+    done
+    printf -- "\n"
+  done
+  printf -- "\e[0m"
+}
+
+pick_color() {
+local s
+  s="${1}"
+  case "${s^^}" in
+    "00")
+      s='\e[0m\e[30m'
+      ;;
+    "10")
+      s='\e[0m\e[1m\e[30m'
+      ;;
+    "01")
+      s='\e[0m\e[31m'
+      ;;
+    "11")
+      s='\e[0m\e[1m\e[31m'
+      ;;
+    "02")
+      s='\e[0m\e[32m'
+      ;;
+    "12")
+      s='\e[0m\e[1m\e[32m'
+      ;;
+    "03")
+      s='\e[0m\e[33m'
+      ;;
+    "13")
+      s='\e[0m\e[1m\e[33m'
+      ;;
+    "04")
+      s='\e[0m\e[34m'
+      ;;
+    "14")
+      s='\e[0m\e[1m\e[34m'
+      ;;
+    "05")
+      s='\e[0m\e[35m'
+      ;;
+    "15")
+      s='\e[0m\e[1m\e[35m'
+      ;;
+    "06")
+      s='\e[0m\e[36m'
+      ;;
+    "16")
+      s='\e[0m\e[1m\e[36m'
+      ;;
+    "07")
+      s='\e[0m\e[37m'
+      ;;
+    "17")
+      s='\e[0m\e[1m\e[37m'
+      ;;
+    *)
+      s='\e[0m'
+  esac
+  printf -- "%s" "${s}"
+}
+
+multi_color() {
+local r s c s1 s2 c
+  c="${1}"
+  for r in 0 1 2 3 4 5
+  do
+    s="${c%%:*}"
+    c="${c#*:}"
+    s1="${s%%@*}"
+    s2="${s#*@}"
+    s1="$(pick_color "${s1}")"
+    s2="$(pick_color "${s2}")"
+    SCHEME["MULTI.${r}.A"]="${s1}"
+    SCHEME["MULTI.${r}.B"]="${s2}"
+    SCHEME["MULTI.A"]="${s1}"
+    SCHEME["MULTI.B"]="${s2}"
+  done
+}
+
+main() {
+  declare -Ga __GLYPH=()
+  source <(printf "${GLYPH}" | base64 -d | gzip -cd)
+  if [[ -z ${1:-} ]]
+  then
+    printf -- "%s: <text>\n" "$0"
+    exit 10
+  fi
+  declare -Ga TOKENS=()
+  tokenize "${1}"
+  render
+}
+
+declare -A SCHEME
+SCHEME['0.A']='\e[0m\e[1m\e[32m'
+SCHEME['0.B']='\e[0m\e[1m\e[33m'
+SCHEME['1.A']='\e[0m\e[31m'
+SCHEME['1.B']='\e[0m\e[1m\e[31m'
+SCHEME['2.A']='\e[0m\e[1m\e[31m'
+SCHEME['2.B']='\e[0m\e[31m'
+SCHEME['3.A']='\e[0m\e[37m'
+SCHEME['3.B']='\e[0m\e[1m\e[30m'
+SCHEME['4.A']='\e[0m\e[34m'
+SCHEME['4.B']='\e[0m\e[1m\e[35m'
+SCHEME['5.A']='\e[0m\e[35m'
+SCHEME['5.B']='\e[0m\e[1m\e[33m'
+SCHEME['6.A']='\e[0m\e[31m'
+SCHEME['6.B']='\e[0m\e[1m\e[32m'
+SCHEME['7.A']='\e[0m\e[1m\e[32m'
+SCHEME['7.B']='\e[0m\e[31m'
+
+declare -A CUSTOM
+CUSTOM['BLACK']='\e[0m\e[30m'
+CUSTOM['BBLACK']='\e[0m\e[1m\e[30m'
+CUSTOM['RED']='\e[0m\e[31m'
+CUSTOM['BRED']='\e[0m\e[1m\e[31m'
+CUSTOM['GREEN']='\e[0m\e[32m'
+CUSTOM['BGREEN']='\e[0m\e[1m\e[32m'
+CUSTOM['YELLOW']='\e[0m\e[33m'
+CUSTOM['BYELLOW']='\e[0m\e[1m\e[33m'
+CUSTOM['BLUE']='\e[0m\e[34m'
+CUSTOM['BBLUE']='\e[0m\e[1m\e[34m'
+CUSTOM['MAGENTA']='\e[0m\e[35m'
+CUSTOM['BMAGENTA']='\e[0m\e[1m\e[35m'
+CUSTOM['CYAN']='\e[0m\e[36m'
+CUSTOM['BCYAN']='\e[0m\e[1m\e[36m'
+CUSTOM['WHITE']='\e[0m\e[37m'
+CUSTOM['BWHITE']='\e[0m\e[1m\e[37m'
+
+SELECT=0
+if [[ $# -gt 1 ]]
+then
+  if [[ ${1} =~ @ ]]
+  then
+    multi_color "${1}"
+    SELECT="MULTI"
+    shift
+  elif [[ ${1} =~ : ]]
+  then
+    A="${1%:*}"
+    B="${1#*:}"
+    shift
+    A="${A^^}"
+    B="${B^^}"
+    if [[ -n ${CUSTOM[${A}]+set} ]]
+    then
+      A="${CUSTOM[${A}]}"
+    else
+      printf -- "ERROR: unknow color selector (A) ...\n"
+      exit 10
+    fi
+    if [[ -n ${CUSTOM[${B}]+set} ]]
+    then
+      B="${CUSTOM[${B}]}"
+    else
+      printf -- "ERROR: unknow color selector (B) ...\n"
+      exit 10
+    fi
+    SCHEME["CUSTOM.A"]="${A}"
+    SCHEME["CUSTOM.B"]="${B}"
+    SELECT="CUSTOM"
+  else
+    SELECT="${1}"
+    shift
+  fi
+fi
+GLYPH="H4sICFhbaWQAA3NoYWRvdy1mb250AM1a127UUBB9z1cMa0pC7z0Qm5IAAUIntPAfFOWBBx6zUsJKkfxz+RJ2Xaf73t01JLKU6/EtU86cGTvZ2lpd39xYW15cABjA+GcQN0jgyOQmPfjze3xlB3ujlQEVDA3BeLR/sLdzsJfzCSNlQgJ8knekcxg7FYofZ5xAUtyj48iYnC0vak67cHesBLnL57xRBo2laFQYdLQ66FdxNUdMbjVv7hZrm8tVVIledVmAkBvQkI2nbZdXhjVI4BjDAzgAUj0NQKR1JJkUFHfkzlFAUXu8BBPadYQwhsRDgHAsOeF3I1SeoweoUr+EyImwpOY5jNMHDxJY5EmkuVWcIpw/BC0HRgLyxZlLHCHOWhC2SYmaZiy3Trbk0bhgkmoo/sVt/Qh4gNGibZbpE1HrVnQy4azK4aewpJ2A3YEV1LBWP24zkcJM14UpU2pzuhINvN8lJdkV4Ey774ANuQU2DzHmJ8MEzgbq6Vaqc7WvgU8kshZEXBpDRSDyOW+8fh7vYkRXpRIn8SkeHUoXVIk4QwecVrwoORVWXXCpxDrLS2xFwkJ60SbUkcGnJsXoJuv1NndrgodyXCov9a49kPVObIx4O+G+zFncqyJDMGlbns+LmNWpFOygSxlMroTE6rB0VgZYrgaUBNuETrw6O6i82gUd8LBzbS7+pOHfxRWEcbEiL/ot0Gt2Atet1DL9FOQkn1nit1CcXHn4Rj8GUP8b5MLYO1b1m+E1PWRC1UHcit2Vtjxp86JDt71dtQ98QxWYKipZ24ubO7krJ7Zl2dbOUpJmX066yzuiRExhcpQjSRLfnUd5hRS/jTOeSfkbMKAnrdUgo1e7aMVtBUMo2W4E0aeYoT1ryGfVYUDPiPG4E8yp//IiJ1LVJscgwxqFeLrWCzsJ5QuYNMOJ2lk3XLpJs6sszr6DV1fveT1CVJdT+o6TCpPaFWKEUtroZ+7P0d1+hxnefwY7+kEfDSWmSGUtf9E0z/X7yIeHQHUFRw0tVsS4Osd2lwDAxo+EyMyN7lrfL0keF4bsr7JhofojtVHytg8VtGdmk4MeK+9yTfU13/CsYwB9PnaiGNiLPomLn9Or8JO9zzwqxIfK2Xb01oXiHVw+hXRKAnpKt6i0c7ITzeMSmQWiY/HwyP9iI7+KYQe0znbTCHgsnnkGe9a6n7pxcINtHHUZaDiY2IeiWxr4fEqu9rmwo573wNYb/6UDtCuWWyBf/Hunp+UfI4MI1nF8it+aKte/PFTNd3SxfNVHU8XXc+hGNws+L7+2tzDU0Dq9pkRTWE0pJsAvtHwjC9ucaaRvlnnbuwUZ5Xz9I6mwgzYmwG2ov6q8UzqLDv19A1Kppko9CIgdQaF9gB0Z/PWiCs777oYvsyqq6VzmWaOIKySRx7R8mwG4mh8ymJ5TZPKHOM6zAgpdfpZazta/fpTtnBY6CfQOialCeewnuninSj2BqX32ryzsgRKnffQNVjxAr1wZxdtnT3eRoRH/yCEymzriS6OQGmglkZwkCvm3swS22vvxIOJmNqR9VUKuxltQNjbHHCbwTXGfJCmlQUHoZdHWY6KRb6HBd0ZaIkemFrS+KL4y/FBewuINiPIKKy0/S983s2u8VHfVL4yhsPHSwl8egaGsLSoAAA=="
+main "$@"
+exit 0

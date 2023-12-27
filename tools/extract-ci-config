@@ -1,0 +1,24 @@
+#!/bin/bash
+
+[[ -n ${CI_PROJECT_DIR:-} ]] || return 1
+[[ -s ${CI_PROJECT_DIR}/.gitlab-ci.yml ]] || return 1
+declare __ci_config_prefix__=""
+while [[ $# -gt 0 ]]
+do
+  case "${1,,}" in
+    prefix:*)
+      __ci_config_prefix__="${1:7}"
+      ;;
+  esac
+  shift
+done
+__ci_config_prefix__="${__ci_config_prefix__:+${__ci_config_prefix__^^}:}"
+source /dev/stdin < <(gawk -v prefix="${__ci_config_prefix__}" '{
+    if( match($0, "^#::" prefix "([[A-Z]+)[[:space:]]+(.+)$", ci) ) {
+       val=ci[2];
+       sub("'\''","'\''\\'\'\''",val); 
+       printf("export CFG_%s=\x27%s\x27\n",ci[1],val);
+       printf("CONFIG_TAG[%s]=\x27%s\x27\n",ci[1],val)
+    }
+  }' "${CI_PROJECT_DIR}/.gitlab-ci.yml" || true)
+unset __ci_config_prefix__

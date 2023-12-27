@@ -1,0 +1,765 @@
+#!/usr/bin/env bash
+set -euf
+
+__GLYPH_A=(
+  " █████  "
+  "██   ██ "
+  "███████ "
+  "██   ██ "
+  "██   ██ "
+  "        "
+)
+__GLYPH_B=(
+  "██████  "
+  "██   ██ "
+  "██████  "
+  "██   ██ "
+  "██████  "
+  "        "
+)
+__GLYPH_C=(
+  " ██████ "
+  "██      "
+  "██      "
+  "██      "
+  " ██████ "
+  "        "
+)
+
+__GLYPH_D=(
+  "██████  "
+  "██   ██ "
+  "██   ██ "
+  "██   ██ "
+  "██████  "
+  "        "
+)
+
+__GLYPH_E=(
+  "███████ "
+  "██      "
+  "█████   "
+  "██      "
+  "███████ "
+  "        "
+)
+
+__GLYPH_F=(
+  "███████ "
+  "██      "
+  "█████   "
+  "██      "
+  "██      "
+  "        "
+)
+
+__GLYPH_G=(
+  " ██████  "
+  "██       "
+  "██   ███ "
+  "██    ██ "
+  " ██████  "
+  "         "
+)
+
+__GLYPH_H=(
+  "██   ██ "
+  "██   ██ "
+  "███████ "
+  "██   ██ "
+  "██   ██ "
+  "        "
+)
+
+__GLYPH_I=(
+  "██ "
+  "██ "
+  "██ "
+  "██ "
+  "██ "
+  "   "
+)
+
+__GLYPH_J=(
+  "     ██ "
+  "     ██ "
+  "     ██ "
+  "██   ██ "
+  " █████  "
+  "        "
+)
+
+__GLYPH_K=(
+  "██   ██ "
+  "██  ██  "
+  "█████   "
+  "██  ██  "
+  "██   ██ "
+  "        "
+)
+
+__GLYPH_L=(
+  "██      "
+  "██      "
+  "██      "
+  "██      "
+  "███████ "
+  "        "
+)
+
+__GLYPH_M=(
+  "███    ███ "
+  "████  ████ "
+  "██ ████ ██ "
+  "██  ██  ██ "
+  "██      ██ "
+  "           "
+)
+
+__GLYPH_N=(
+  "███   ██ "
+  "████  ██ "
+  "██ ██ ██ "
+  "██  ████ "
+  "██   ███ "
+  "          "
+)
+
+__GLYPH_O=(
+  " ██████  "
+  "██    ██ "
+  "██    ██ "
+  "██    ██ "
+  " ██████  "
+  "         "
+)
+
+__GLYPH_P=(
+  "██████  "
+  "██   ██ "
+  "██████  "
+  "██      "
+  "██      "
+  "        "
+)
+
+__GLYPH_Q=(
+  " ██████  "
+  "██    ██ "
+  "██    ██ "
+  "██ ▄▄ ██ "
+  " ██████  "
+  "    ▀▀   "
+)
+
+__GLYPH_R=(
+  "██████  "
+  "██   ██ "
+  "██████  "
+  "██   ██ "
+  "██   ██ "
+  "        "
+)
+
+__GLYPH_S=(
+  "███████ "
+  "██      "
+  "███████ "
+  "     ██ "
+  "███████ "
+  "        "
+)
+
+__GLYPH_T=(
+  "████████ "
+  "   ██    "
+  "   ██    "
+  "   ██    "
+  "   ██    "
+  "         "
+)
+
+__GLYPH_U=(
+  "██    ██ "
+  "██    ██ "
+  "██    ██ "
+  "██    ██ "
+  " ██████  "
+  "         "
+)
+
+__GLYPH_V=(
+  "██    ██ "
+  "██    ██ "
+  "██    ██ "
+  " ██  ██  "
+  "  ████   "
+  "         "
+)
+
+__GLYPH_W=(
+  "██     ██ "
+  "██     ██ "
+  "██  █  ██ "
+  "██ ███ ██ "
+  " ███ ███  "
+  "          "
+)
+
+__GLYPH_X=(
+  "██   ██ "
+  " ██ ██  "
+  "  ███   "
+  " ██ ██  "
+  "██   ██ "
+  "        "
+)
+
+__GLYPH_Y=(
+  "██    ██ "
+  " ██  ██  "
+  "  ████   "
+  "   ██    "
+  "   ██    "
+  "         "
+)
+
+__GLYPH_Z=(
+  "███████ "
+  "   ███  "
+  "  ███   "
+  " ███    "
+  "███████ "
+  "        "
+)
+
+__GLYPH_EXCL=(
+  "██ "
+  "██ "
+  "██ "
+  "   "
+  "██ "
+  "   "
+)
+
+__GLYPH_AT=(
+  " ██████  "
+  "██    ██ "
+  "██ ██ ██ "
+  "██ ██ ██ "
+  " █ ████  "
+  "         "
+)
+__GLYPH_HASH=(
+  " ██  ██  "
+  "████████ "
+  " ██  ██  "
+  "████████ "
+  " ██  ██  "
+  "         "
+)
+
+__GLYPH_DOLLAR=(
+  "▄▄███▄▄ "
+  "██      "
+  "███████ "
+  "     ██ "
+  "███████ "
+  "  ▀▀▀   "
+)
+
+__GLYPH_PERCENT=(
+  "██  ██ "
+  "   ██  "
+  "  ██   "
+  " ██    "
+  "██  ██ "
+  "       "
+)
+
+__GLYPH_CARET=(
+  " ███  "
+  "██ ██ "
+  "      "
+  "      "
+  "      "
+  "      "
+)
+
+__GLYPH_AND=(
+  "   ██    "
+  "   ██    "
+  "████████ "
+  "██  ██   "
+  "██████   "
+  "         "
+)
+
+__GLYPH_ASTERISK=(
+  "       "
+  "▄ ██ ▄ "
+  " ████  "
+  "▀ ██ ▀ "
+  "       "
+  "       "
+)
+
+__GLYPH_LBRACK=(
+  " ██ "
+  "██  "
+  "██  "
+  "██  "
+  " ██ "
+  "    "
+)
+
+__GLYPH_RBRACK=(
+  "██  "
+  " ██ "
+  " ██ "
+  " ██ "
+  "██  "
+  "    "
+)
+
+__GLYPH_PLUS=(
+"       "
+"  ██   "
+"██████ "
+"  ██   "
+"       "
+"       "
+)
+
+__GLYPH_MINUS=(
+"      "
+"      "
+"█████ "
+"      "
+"      "
+"      "
+)
+
+__GLYPH_EQUAL=(
+"      "
+"█████ "
+"      "
+"█████ "
+"      "
+"      "
+)
+
+__GLYPH_DQUOTE=(
+"██ ██ "
+"██ ██ "
+"      "
+"      "
+"      "
+"      "
+)
+
+__GLYPH_SQUOTE=(
+"██ "
+"██ "
+"   "
+"   "
+"   "
+"   "
+)
+
+
+__GLYPH_DOT=(
+"   "
+"   "
+"   "
+"   "
+"██ "
+"   "
+)
+
+__GLYPH_COMMA=(
+  "    "
+  "    "
+  "    "
+  "    "
+  " ██ "
+  "▀▀  "
+)
+__GLYPH_1=(
+  " ██ "
+  "███ "
+  " ██ "
+  " ██ "
+  " ██ "
+  "    "
+)
+
+__GLYPH_2=(
+  "██████  "
+  "     ██ "
+  " █████  "
+  "██      "
+  "███████ "
+  "        "
+)
+
+__GLYPH_3=(
+  "██████  "
+  "     ██ "
+  " █████  "
+  "     ██ "
+  "██████  "
+  "        "
+)
+
+__GLYPH_4=(
+  "██   ██ "
+  "██   ██ "
+  "███████ "
+  "     ██ "
+  "     ██ "
+  "        "
+)
+
+__GLYPH_5=(
+  "███████ "
+  "██      "
+  "███████ "
+  "     ██ "
+  "███████ "
+  "        "
+)
+
+__GLYPH_6=(
+  " ██████  "
+  "██       "
+  "███████  "
+  "██    ██ "
+  " ██████  "
+  "         "
+)
+
+__GLYPH_7=(
+  "██████▄ "
+  "     ██ "
+  "   ██   "
+  " ██     "
+  " ██     "
+  "        "
+)
+
+__GLYPH_8=(
+  " █████  "
+  "██   ██ "
+  " █████  "
+  "██   ██ "
+  " █████  "
+  "        "
+)
+
+__GLYPH_9=(
+  " █████  "
+  "██   ██ "
+  " ██████ "
+  "     ██ "
+  " █████  "
+  "        "
+)
+
+__GLYPH_0=(
+  " ██████  "
+  "██  ████ "
+  "██ ██ ██ "
+  "████  ██ "
+  " ██████  "
+  "         "
+)
+
+__GLYPH_COLON=(
+  "   "
+  "██ "
+  "   "
+  "██ "
+  "   "
+  "   "
+)
+
+__GLYPH_SEMICOLON=(
+  "   "
+  "██ "
+  "   "
+  "▄█ "
+  "▀  "
+  "   "
+)
+
+__GLYPH_SPACE=(
+  "    "
+  "    "
+  "    "
+  "    "
+  "    "
+  "    "
+)
+tput cols &>/dev/null || true
+if [[ -z ${COLUMNS:-} ]]
+then
+  COLUMNS="${CI_TEXT_COLUMNS:-160}"
+fi
+
+unset SCHEME
+declare -A SCHEME
+
+SCHEME['0.0']='\e[0m\e[34m'
+SCHEME['0.1']='\e[0m\e[1m\e[34m'
+SCHEME['0.2']='\e[0m\e[36m'
+SCHEME['0.3']='\e[0m\e[36m'
+SCHEME['0.4']='\e[0m\e[1m\e[36m'
+SCHEME['0.5']='\e[0m\e[1m\e[36m'
+
+SCHEME['1.0']='\e[0m\e[1m\e[30m'
+SCHEME['1.1']='\e[0m\e[37m'
+SCHEME['1.2']='\e[0m\e[1m\e[37m'
+SCHEME['1.3']='\e[0m\e[37m'
+SCHEME['1.4']='\e[0m\e[1m\e[30m'
+SCHEME['1.5']='\e[0m\e[1m\e[30m'
+
+SCHEME['2.0']='\e[0m\e[31m'
+SCHEME['2.1']='\e[0m\e[1m\e[31m'
+SCHEME['2.2']='\e[0m\e[1m\e[31m'
+SCHEME['2.3']='\e[0m\e[1m\e[31m'
+SCHEME['2.4']='\e[0m\e[31m'
+SCHEME['2.5']='\e[0m\e[31m'
+
+SCHEME['3.0']='\e[0m\e[32m'
+SCHEME['3.1']='\e[0m\e[1m\e[32m'
+SCHEME['3.2']='\e[0m\e[1m\e[33m'
+SCHEME['3.3']='\e[0m\e[1m\e[33m'
+SCHEME['3.4']='\e[0m\e[33m'
+SCHEME['3.5']='\e[0m\e[33m'
+
+custom_scheme() {
+local r c s
+  c="${1}"
+  for r in 0 1 2 3 4 5
+  do
+    s="${c%%:*}"
+    c="${c#*:}"
+    case "${s^^}" in
+      "00")
+        s='\e[0m\e[30m'
+        ;;
+      "10")
+        s='\e[0m\e[1m\e[30m'
+        ;;
+      "01")
+        s='\e[0m\e[31m'
+        ;;
+      "11")
+        s='\e[0m\e[1m\e[31m'
+        ;;
+      "02")
+        s='\e[0m\e[32m'
+        ;;
+      "12")
+        s='\e[0m\e[1m\e[32m'
+        ;;
+      "03")
+        s='\e[0m\e[33m'
+        ;;
+      "13")
+        s='\e[0m\e[1m\e[33m'
+        ;;
+      "04")
+        s='\e[0m\e[34m'
+        ;;
+      "14")
+        s='\e[0m\e[1m\e[34m'
+        ;;
+      "05")
+        s='\e[0m\e[35m'
+        ;;
+      "15")
+        s='\e[0m\e[1m\e[35m'
+        ;;
+      "06")
+        s='\e[0m\e[36m'
+        ;;
+      "16")
+        s='\e[0m\e[1m\e[36m'
+        ;;
+      "07")
+        s='\e[0m\e[37m'
+        ;;
+      "17")
+        s='\e[0m\e[1m\e[37m'
+        ;;
+      *)
+        s='\e[0m'
+    esac
+    SCHEME["CUSTOM.${r}"]="${s}"
+  done
+}
+
+tokenize() {
+local _char _text _token
+  _text="${1:-}"
+  for ((i=0; i<${#_text}; i++))
+  do
+    _char="${_text:${i}:1}"
+    _char="${_char^^}"
+    _token=""
+    case "${_char}" in
+      [0-9A-Z])
+        _token="${_char}"
+        ;;
+      [[:space:]])
+        _token="SPACE"
+        ;;
+      \!)
+        _token="EXCL"
+        ;;
+      \@)
+        _token="AT"
+        ;;
+      \#)
+        _token="HASH"
+        ;;
+      \$)
+        _token="DOLLAR"
+        ;;
+      \%)
+        _token="PERCENT"
+        ;;
+      \^)
+        _token="CARET"
+        ;;
+      \&)
+        _token="AND"
+        ;;
+      \*)
+        _token="ASTERISK"
+        ;;
+      \()
+        _token="LBRACK"
+        ;;
+      \))
+        _token="RBRACK"
+        ;;
+      \+)
+        _token="PLUS"
+        ;;
+      \-)
+        _token="MINUS"
+        ;;
+      \=)
+        _token="EQUAL"
+        ;;
+      \.)
+        _token="DOT"
+        ;;
+      \,)
+        _token="COMMA"
+        ;;
+      \:)
+        _token="COLON"
+        ;;
+      \;)
+        _token="SEMICOLON"
+        ;;
+      \")
+        _token="DQUOTE"
+        ;;
+      \')
+        _token="SQUOTE"
+        ;;
+    esac
+    if [[ -n ${_token} ]]
+    then
+      if [[ -n ${ALPHABET[${_token}]+set} ]]
+      then
+        TOKENS+=( "${_token}" )
+      fi
+    fi
+  done
+}
+
+render() {
+  for _row in 0 1 2 3 4 5
+  do
+    if [[ -n ${SCHEME["${SELECT}.${_row}"]+set} ]]
+    then
+      printf -- "${SCHEME["${SELECT}.${_row}"]}"
+    fi
+    _width=0
+    for _line in ${TOKENS[@]}
+    do
+      _glyph="__GLYPH_${_line}[${_row}]"
+      _glyph="${!_glyph}"
+      _width=$(( _width + ${#_glyph} )) || true
+      if [[ -n ${COLUMNS:-} ]]
+      then
+        if [[ ${_width} -gt $(( ${COLUMNS} )) ]]
+        then
+          break
+        fi
+      fi
+      printf -- "%s" "${_glyph}"
+    done
+    printf -- "\n"
+  done
+  printf -- "\e[0m"
+}
+unset ALPHABET
+declare -A ALPHABET
+ALPHABET["EXCL"]="__GLYPH_EXCL"
+ALPHABET["AT"]="__GLYPH_AT"
+ALPHABET["HASH"]="__GLYPH_HASH"
+ALPHABET["DOLLAR"]="__GLYPH_DOLLAR"
+ALPHABET["PERCENT"]="__GLYPH_PERCENT"
+ALPHABET["CARET"]="__GLYPH_CARET"
+ALPHABET["AND"]="__GLYPH_AND"
+ALPHABET["ASTERISK"]="__GLYPH_ASTERISK"
+ALPHABET["LBRACK"]="__GLYPH_LBRACK"
+ALPHABET["RBRACK"]="__GLYPH_RBRACK"
+ALPHABET["PLUS"]="__GLYPH_PLUS"
+ALPHABET["MINUS"]="__GLYPH_MINUS"
+ALPHABET["EQUAL"]="__GLYPH_EQUAL"
+ALPHABET["DOT"]="__GLYPH_DOT"
+ALPHABET["COLON"]="__GLYPH_COLON"
+ALPHABET["SEMICOLON"]="__GLYPH_SEMICOLON"
+ALPHABET["COMMA"]="__GLYPH_COMMA"
+ALPHABET["DQUOTE"]="__GLYPH_DQUOTE"
+ALPHABET["SQUOTE"]="__GLYPH_SQUOTE"
+ALPHABET["SPACE"]="__GLYPH_SPACE"
+for _glyph in {0..9} {A..Z}
+do
+  _ref="__GLYPH_${_glyph}"
+  if [[ -n ${!_ref:-} ]]
+  then
+     ALPHABET["${_glyph}"]="${_ref}"
+  fi
+done
+
+declare -a TOKENS=()
+
+if [[ -z ${1:-} ]]
+then
+  printf -- "usage: %s <text>\n" "$0"
+  exit 10
+fi
+
+SELECT=0
+if [[ $# -gt 1 ]]
+then
+  if [[ ${1} =~ : ]]
+  then
+    custom_scheme "${1}"
+    SELECT="CUSTOM"
+  else
+    SELECT="${1}"
+  fi
+  shift
+fi
+tokenize "${1}"
+render

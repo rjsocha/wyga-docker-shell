@@ -1,0 +1,38 @@
+#!/bin/bash
+set -euo pipefail
+[[ -f config.ci ]] && source config.ci || true
+
+registry_login() {
+  local registry="${1}"
+  local login="${2}"
+  local password="${3}"
+  printf "REGISTRY: %s\n" "${registry:-docker.io}"
+  printf -- "${password}" | \
+  if ! docker login -u "${login}" --password-stdin "${registry}" &>/dev/null
+  then
+    printf -- "  UNABLE TO LOGIN ...\n"
+    exit 200
+  fi
+}
+
+if [[ -n ${CI_REGISTRY:-} ]] && [[ -n ${CI_REGISTRY_PASSWORD:-} ]]
+then
+  registry_login "${CI_REGISTRY}" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}"
+fi
+
+if [[ -n ${DOCKER_IO_USER:-} ]] && [[ -n ${DOCKER_IO_TOKEN:-} ]] && [[ -z ${NO_DOCKER_IO:-} ]]
+then
+  registry_login "" "${DOCKER_IO_USER}" "${DOCKER_IO_TOKEN}"
+fi
+
+if [[ -n "${CI_DEPENDENCY_PROXY_SERVER:-}" ]] && [[ -n ${CI_DEPENDENCY_PROXY_PASSWORD:-} ]] && [[ -n ${ENABLE_DEPENDENCY_PROXY:-} ]]
+then
+  registry_login "${CI_DEPENDENCY_PROXY_SERVER}" "${CI_DEPENDENCY_PROXY_USER}" "${CI_DEPENDENCY_PROXY_PASSWORD}"
+fi
+
+if [[ -n ${DOCKER_BUILDER:-} ]]
+then
+  docker run --quiet --privileged --rm tonistiigi/binfmt --install all &>/dev/null
+  docker buildx inspect "${DOCKER_BUILDER}" --bootstrap &>/dev/null || docker buildx create --use --bootstrap --name "${DOCKER_BUILDER}" &>/dev/null
+  printf -- "BUILDER: %s\n" "${DOCKER_BUILDER}"
+fi

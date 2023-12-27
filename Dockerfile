@@ -10,14 +10,7 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends docker-ce-cli docker-buildx-plugin -qq && \
     apt-get clean && \
     find /var/lib/apt/lists/ -type f -delete
-COPY --chmod=755 entrypoint.sh /.entrypoint/docker-shell
-COPY --chmod=755 extra/deploypress-client /usr/bin/deploypress-client
-COPY --chmod=755 \
-  extra/initialization-begin \
-  extra/initialization-end \
-  extra/job-begin \
-  extra/job-end \
-  /usr/bin/
+COPY --chmod=755 tools/ /usr/local/bin
 FROM scratch
 COPY --from=mold / /
 ENTRYPOINT ["/.entrypoint/docker-shell"]

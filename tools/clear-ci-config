@@ -1,0 +1,8 @@
+#!/bin/bash
+declare __env_unset
+for __env_unset in ${!CFG_*}
+do
+  unset "${__env_unset}"
+done
+unset __env_unset
+declare -gA CONFIG_TAG=()
