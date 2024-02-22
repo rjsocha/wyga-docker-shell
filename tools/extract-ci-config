@@ -14,7 +14,7 @@ do
 done
 __ci_config_prefix__="${__ci_config_prefix__:+${__ci_config_prefix__^^}:}"
 source /dev/stdin < <(gawk -v prefix="${__ci_config_prefix__}" '{
-    if( match($0, "^#::" prefix "([[A-Z]+)[[:space:]]+(.+)$", ci) ) {
+    if( match($0, "^#::" prefix "([[A-Z][A-Z_]+)[[:space:]]+(.+)$", ci) ) {
        val=ci[2];
        sub("'\''","'\''\\'\'\''",val); 
        printf("export CFG_%s=\x27%s\x27\n",ci[1],val);
