@@ -1,5 +1,4 @@
 #!/bin/bash
-
 check_commands() {
   if ! command -v rstext &>/dev/null
   then
@@ -14,6 +13,21 @@ check_commands() {
   if ! command -v deploypress-client &>/dev/null
   then
     printf -- "ERROR: missing '%s' command ...\n" "deploypress-client"
+    return 100
+  fi
+  if ! command -v jq &>/dev/null
+  then
+    printf -- "ERROR: missing '%s' command ...\n" "jq"
+    return 100
+  fi
+  if ! command -v curl &>/dev/null
+  then
+    printf -- "ERROR: missing '%s' command ...\n" "curl"
+    return 100
+  fi
+  if ! command -v docker &>/dev/null
+  then
+    printf -- "ERROR: missing '%s' command ...\n" "docker"
     return 100
   fi
 }
