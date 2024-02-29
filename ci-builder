@@ -5,12 +5,10 @@ config="--platform linux/amd64 --provenance false --progress plain --output type
 if [ -n "${DOCKER_IO_USER:-}" ] && [ -n "${DOCKER_IO_TOKEN:-}" ] && [ -z "${NO_DOCKER_IO:-}" ]
 then
   echo "${DOCKER_IO_TOKEN}" | docker login -u "${DOCKER_IO_USER}" --password-stdin &>/dev/null
-  # Disabled - missing yq in Ubuntu
-  #docker buildx build -t ${DOCKER_IO_PATH}/docker-shell:ubuntu ${config} -f Dockerfile .
+  docker buildx build -t ${DOCKER_IO_PATH}/docker-shell:ubuntu ${config} -f Dockerfile .
   docker buildx build -t ${DOCKER_IO_PATH}/docker-shell:alpine -t ${DOCKER_IO_PATH}/docker-shell:latest ${config} -f Dockerfile.alpine .
 else
   echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}" &>/dev/null
-  # Disabled - missing yq in Ubuntu
-  #docker buildx build -t "${CI_REGISTRY_IMAGE}:ubuntu" ${config} -f Dockerfile .
+  docker buildx build -t "${CI_REGISTRY_IMAGE}:ubuntu" ${config} -f Dockerfile .
   docker buildx build -t "${CI_REGISTRY_IMAGE}:alpine" -t "${CI_REGISTRY_IMAGE}:latest" ${config} -f Dockerfile.alpine .
 fi
