@@ -27,6 +27,7 @@ do
         dryrun=1
         ;;
     @*)
+        # pass file contest
         param="${opt:1}"
         if [[ ${param} =~ : ]]
         then
@@ -63,6 +64,7 @@ do
         fi
         ;;
     +*)
+        # TAG
         param="${opt:1}"
         if [[ ${param} =~ : ]]
         then
@@ -73,11 +75,11 @@ do
           then
             PARAM[${name}]="${value}"
           else
-            printf -- "ERROR: @: name is incorrect: %s\n" "${name}" >&2
+            printf -- "ERROR: +: name is incorrect: %s\n" "${name}" >&2
             exit 150
           fi
         else
-          printf -- "ERROR: @: syntax error: %s\n" "${param}" >&2
+          printf -- "ERROR: +: syntax error: %s\n" "${param}" >&2
           exit 150
         fi
         ;;
