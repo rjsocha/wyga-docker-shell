@@ -1,4 +1,5 @@
 #!/bin/bash
+
 check_commands() {
   if ! command -v rstext &>/dev/null
   then

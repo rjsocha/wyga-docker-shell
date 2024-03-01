@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 [[ -n ${CI_PROJECT_DIR:-} ]] || return 1
 [[ -s ${CI_PROJECT_DIR}/.gitlab-ci.yml ]] || return 1
@@ -16,9 +16,16 @@ __ci_config_prefix__="${__ci_config_prefix__:+${__ci_config_prefix__^^}:}"
 source /dev/stdin < <(gawk -v prefix="${__ci_config_prefix__}" '{
     if( match($0, "^#::" prefix "([[A-Z][A-Z_]+)[[:space:]]+(.+)$", ci) ) {
        val=ci[2];
-       sub("'\''","'\''\\'\'\''",val); 
+       sub("'\''","'\''\\'\'\''",val);
        printf("export CFG_%s=\x27%s\x27\n",ci[1],val);
        printf("CONFIG_TAG[%s]=\x27%s\x27\n",ci[1],val)
+    }
+  }' "${CI_PROJECT_DIR}/.gitlab-ci.yml" || true)
+source /dev/stdin < <(gawk -v prefix="${__ci_config_prefix__}" '{
+    if( match($0, "^#::" prefix "ENV:([[A-Za-z][A-Za-z0-9_]+)[[:space:]]+(.+)$", ci) ) {
+       val=ci[2];
+       sub("'\''","'\''\\'\'\''",val);
+       printf("CONFIG_ENV[%s]=\x27%s\x27\n",ci[1],val)
     }
   }' "${CI_PROJECT_DIR}/.gitlab-ci.yml" || true)
 unset __ci_config_prefix__

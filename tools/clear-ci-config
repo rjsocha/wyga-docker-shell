@@ -6,3 +6,4 @@ do
 done
 unset __env_unset
 declare -gA CONFIG_TAG=()
+declare -gA CONFIG_ENV=()
