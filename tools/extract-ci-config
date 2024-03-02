@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-[[ -n ${CI_PROJECT_DIR:-} ]] || return 1
-[[ -s ${CI_PROJECT_DIR}/.gitlab-ci.yml ]] || return 1
+[[ -n ${CI_PROJECT_DIR:-} ]] || return 0
+[[ -s ${CI_PROJECT_DIR}/.gitlab-ci.yml ]] || return 0
 declare __ci_config_prefix__=""
 while [[ $# -gt 0 ]]
 do
