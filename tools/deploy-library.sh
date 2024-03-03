@@ -98,7 +98,7 @@ __failed() {
     rstext red:bwhite FAILED
     [[ -z ${1:-} ]] || _printf -- "{R}FATAL:{Y} %s ...\n" "${1}"
   end__
-  exit ${rc}
+  exit 100
 }
 
 __final() {
@@ -112,8 +112,9 @@ __final() {
       printf -- "\n"
       rstext red:bwhite FAILED
     end__
+    exit ${rc}
   fi
-  exit ${rc}
+  exit 0
 }
 
 config_error() {
