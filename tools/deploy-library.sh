@@ -236,10 +236,11 @@ local payload line artifacts
     readarray -t ARTIFACTS <<< "${artifacts}"
   fi
 
-  if [[ ${STATUS} != "200" ]]
-  then
-    return
-  fi
+# Process artifacts even when job failed
+#  if [[ ${STATUS} != "200" ]]
+#  then
+#    return
+#  fi
   local file base
   for artifact in "${ARTIFACTS[@]}"
   do
