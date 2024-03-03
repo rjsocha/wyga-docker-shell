@@ -89,14 +89,31 @@ end_ci__() {
 }
 
 __failed() {
+  local rc=$?
   trap - ERR
+  trap - EXIT
   end_ci__
   __begin panic "Failed ..."
     printf -- "\n"
     rstext red:bwhite FAILED
     [[ -z ${1:-} ]] || _printf -- "{R}FATAL:{Y} %s ...\n" "${1}"
   end__
-  exit 100
+  exit ${rc}
+}
+
+__final() {
+  local rc=$?
+  trap - ERR
+  trap - EXIT
+  if [[ ${rc} -ne 0 ]]
+  then
+    end_ci__
+    __begin panic "Failed ..."
+      printf -- "\n"
+      rstext red:bwhite FAILED
+    end__
+  fi
+  exit ${rc}
 }
 
 config_error() {
@@ -235,3 +252,4 @@ local payload line artifacts
 
 declare -ga __SECTION=()
 trap __failed ERR
+trap __final EXIT
