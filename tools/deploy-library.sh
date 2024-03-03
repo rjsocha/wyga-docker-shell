@@ -181,7 +181,7 @@ local _text
 deploy_process_response() {
 local payload line artifacts
   payload="${1}"
-  if [[ -n ${DP_DUMP_RAW_REPONSE:-} ]]
+  if [[ -n ${DP_DUMP_RAW_RESPONSE:-} ]]
   then
     printf -- "DEBUG:RAW:RESPONSE:\n"
     printf -- "%s\n" "${payload}"
