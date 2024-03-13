@@ -101,6 +101,15 @@ __failed() {
   exit 100
 }
 
+__success() {
+  end_ci__
+  __begin final "Success ..."
+    printf -- "\n"
+    rstext SUCCESS
+  end__
+  exit 0
+}
+
 __final() {
   local rc=$?
   trap - ERR
@@ -259,5 +268,8 @@ local payload line artifacts
 }
 
 declare -ga __SECTION=()
-trap __failed ERR
-trap __final EXIT
+if [[ -z ${NOTRAPS:-} ]]
+then
+	trap __failed ERR
+	trap __final EXIT
+fi
