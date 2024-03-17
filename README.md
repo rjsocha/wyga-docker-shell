@@ -30,6 +30,7 @@ gitlab-runner register \
   --docker-pull-policy always --docker-pull-policy always \
   --docker-volumes "/certs/client" \
   --docker-services_privileged=true \
+  --docker-services-limit=-1 \
   --docker-allowed-privileged-services='**/docker:dind' \
   --docker-allowed-privileged-services='**/docker:*-dind' \
   --feature-flags FF_NETWORK_PER_BUILD \
