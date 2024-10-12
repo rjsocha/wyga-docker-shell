@@ -34,9 +34,10 @@ if [[ -n ${DOCKER_BUILDER:-} ]]
 then
   docker run --quiet --privileged --rm tonistiigi/binfmt --install all &>/dev/null
   # DEBUG
-  printf -- "DEBUG: XXX\n"
-  cat /proc/sys/fs/binfmt_misc/qemu-aarch64 || true
-  printf -- "DEBUG: XXX\n"
   docker buildx inspect "${DOCKER_BUILDER}" --bootstrap &>/dev/null || docker buildx create --use --bootstrap --name "${DOCKER_BUILDER}" &>/dev/null
   printf -- "BUILDER: %s\n" "${DOCKER_BUILDER}"
+  printf -- "DEBUG: XXX\n"
+  ls -la /proc/sys/fs/binfmt_misc/ || true
+  cat /proc/sys/fs/binfmt_misc/qemu-aarch64 || true
+  printf -- "DEBUG: XXX\n"
 fi
