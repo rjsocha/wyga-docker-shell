@@ -15,9 +15,24 @@ registry_login() {
   fi
 }
 
-if [[ -d /config ]]; then
-  rstext "OK"
-  ls -lR /config
+if [[ -d /site/builder ]]; then
+  SITE="/site/builder"
+  eval $(ssh-agent -s)
+  docker buildx create --use --name test-builder --platform linux/amd64 default
+  for platform in $(find "${SITE}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
+    node=1
+    for uri in $(find "${SITE}/builder/${platform}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n"); do
+      [[ ${uri} =~ @ ]] || continue
+      [[ -s ${SITE}/builder/${platform}/${uri} ]] || continue
+      ssh-add "${SITE}/builder/${platform}/${uri}"
+      docker context create "node-${platform}-${node}" --docker "host=ssh://${uri}"
+      docker buildx create --append --name test-builder --platform "linux/${platform}" "node-${platform}-${node}"
+      ((node++)) || true
+    done
+  done
+  ssh-add -L
+  docker context ls
+  docker buildx ls
 fi
 
 if [[ -n ${CI_REGISTRY:-} ]] && [[ -n ${CI_REGISTRY_PASSWORD:-} ]]
