@@ -15,6 +15,11 @@ registry_login() {
   fi
 }
 
+if [[ -d /config ]]; then
+  rstext "OK"
+  ls -lR /config
+fi
+
 if [[ -n ${CI_REGISTRY:-} ]] && [[ -n ${CI_REGISTRY_PASSWORD:-} ]]
 then
   registry_login "${CI_REGISTRY}" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}"
