@@ -34,31 +34,41 @@ if [[ -n ${DOCKER_BUILDER:-} ]]
 then
   if [[ -d /site/builder ]]; then
     RUNNER_CONFIG="/site"
-    if [[ -s ${RUNNER_CONFIG}/ssh/ssh_known_hosts ]]; then
-      cp "${RUNNER_CONFIG}/ssh/ssh_known_hosts" /etc/ssh/ssh_known_hosts
-    fi
-    docker buildx inspect "${DOCKER_BUILDER}" --bootstrap &>/dev/null || docker buildx create --use --bootstrap --name "${DOCKER_BUILDER}" --platform linux/amd64 dind &>/tmp/create.log || { cat /tmp/create.log; exit 100; }
+    docker buildx create --use --bootstrap --name "${DOCKER_BUILDER}" --platform linux/amd64 dind &>/tmp/rt.log.$$ || {
+      printf -- "ERROR (builder create):\n"
+      cat /tmp/rt.log.$$
+      rm /tmp/rt.log.$$
+      exit 100
+    }
+    mkdir -p ~/.ssh
+    :>~/.ssh/config
     for platform in $(find "${RUNNER_CONFIG}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
       node=1
-      mkdir -p ~/.ssh
       for uri in $(find "${RUNNER_CONFIG}/builder/${platform}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n"); do
         [[ ${uri} =~ @ ]] || continue
         [[ -s ${RUNNER_CONFIG}/builder/${platform}/${uri} ]] || continue
-#        ssh-add -q "${RUNNER_CONFIG}/builder/${platform}/${uri}"
         {
           printf -- "Host %s\n" "${uri#*@}"
           printf -- "  IdentityFile %s\n" "${RUNNER_CONFIG}/builder/${platform}/${uri}"
+          if [[ -s ${RUNNER_CONFIG}/ssh/known_hosts ]]; then
+            printf -- "  UserKnownHostsFile %s\n" "${RUNNER_CONFIG}/ssh/known_hosts"
+          fi
         } >>~/.ssh/config
-        cat ~/.ssh/config
-        ssh "${uri}" echo OK
-        docker context create "node-${platform}-${node}" --docker "host=ssh://${uri}"
-        docker buildx create --append --name "${DOCKER_BUILDER}" --platform "linux/${platform}" "node-${platform}-${node}"
+        docker context create "node-${platform}-${node}" --docker "host=ssh://${uri}" &>/tmp/rt.log.$$ || {
+          printf -- "ERROR (context create):\n"
+          cat /tmp/rt.log.$$
+          rm /tmp/rt.log.$$
+          exit 100
+        }
+        docker buildx create --append --name "${DOCKER_BUILDER}" --platform "linux/${platform}" "node-${platform}-${node}" || {
+          printf -- "ERROR (builder update):\n"
+          cat /tmp/rt.log.$$
+          rm /tmp/rt.log.$$
+          exit 100
+        }
         ((node++)) || true
       done
     done
-    echo XxX
-    docker context ls
-    docker buildx ls
     printf -- "BUILDER/NATIVE: %s\n" "${DOCKER_BUILDER}"
   else
     docker run --quiet --privileged --rm tonistiigi/binfmt --install all &>/dev/null
