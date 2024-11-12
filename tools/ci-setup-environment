@@ -60,7 +60,7 @@ then
           rm /tmp/rt.log.$$
           exit 100
         }
-        docker buildx create --append --name "${DOCKER_BUILDER}" --platform "linux/${platform}" "node-${platform}-${node}" || {
+        docker buildx create --append --name "${DOCKER_BUILDER}" --platform "linux/${platform}" "node-${platform}-${node}" &>/tmp/rt.log.$$ || {
           printf -- "ERROR (builder update):\n"
           cat /tmp/rt.log.$$
           rm /tmp/rt.log.$$
@@ -69,6 +69,7 @@ then
         ((node++)) || true
       done
     done
+    docker buildx inspect "${DOCKER_BUILDER}"
     printf -- "BUILDER/NATIVE: %s\n" "${DOCKER_BUILDER}"
   else
     docker run --quiet --privileged --rm tonistiigi/binfmt --install all &>/dev/null
