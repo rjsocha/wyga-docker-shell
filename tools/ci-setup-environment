@@ -34,7 +34,6 @@ if [[ -n ${DOCKER_BUILDER:-} ]]
 then
   if [[ -d /site/builder ]]; then
     RUNNER_CONFIG="/site"
-    eval $(ssh-agent -s)
     if [[ -s ${RUNNER_CONFIG}/ssh/ssh_known_hosts ]]; then
       cp "${RUNNER_CONFIG}/ssh/ssh_known_hosts" /etc/ssh/ssh_known_hosts
     fi
@@ -57,7 +56,7 @@ then
         ((node++)) || true
       done
     done
-    ssh-add -L
+    echo XxX
     docker context ls
     docker buildx ls
     printf -- "BUILDER/NATIVE: %s\n" "${DOCKER_BUILDER}"
