@@ -16,16 +16,15 @@ registry_login() {
 }
 
 if [[ -d /site/builder ]]; then
-  SITE="/site/builder"
+  RUNNER_CONFIG="/site"
   eval $(ssh-agent -s)
-  docker buildx ls
   docker buildx create --use --bootstrap --name test-builder --platform linux/amd64 dind
-  for platform in $(find "${SITE}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
+  for platform in $(find "${RUNNER_CONFIG}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
     node=1
-    for uri in $(find "${SITE}/builder/${platform}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n"); do
+    for uri in $(find "${RUNNER_CONFIG}/builder/${platform}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n"); do
       [[ ${uri} =~ @ ]] || continue
-      [[ -s ${SITE}/builder/${platform}/${uri} ]] || continue
-      ssh-add "${SITE}/builder/${platform}/${uri}"
+      [[ -s ${RUNNER_CONFIG}/builder/${platform}/${uri} ]] || continue
+      ssh-add "${RUNNER_CONFIG}/builder/${platform}/${uri}"
       docker context create "node-${platform}-${node}" --docker "host=ssh://${uri}"
       docker buildx create --append --name test-builder --platform "linux/${platform}" "node-${platform}-${node}"
       ((node++)) || true
