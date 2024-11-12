@@ -17,8 +17,11 @@ registry_login() {
 
 if [[ -d /site/builder ]]; then
   SITE="/site/builder"
+  env
+  docker info
   eval $(ssh-agent -s)
-  docker buildx create --use --name test-builder --platform linux/amd64 default
+  docker buildx ls
+  docker buildx create --use --bootstrap --name test-builder --platform linux/amd64 default
   for platform in $(find "${SITE}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
     node=1
     for uri in $(find "${SITE}/builder/${platform}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n"); do
