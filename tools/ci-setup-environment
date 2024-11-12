@@ -15,7 +15,6 @@ registry_login() {
   fi
 }
 
-
 if [[ -n ${CI_REGISTRY:-} ]] && [[ -n ${CI_REGISTRY_PASSWORD:-} ]]
 then
   registry_login "${CI_REGISTRY}" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}"
@@ -39,7 +38,7 @@ then
     if [[ -s ${RUNNER_CONFIG}/ssh/ssh_known_hosts ]]; then
       cp "${RUNNER_CONFIG}/ssh/ssh_known_hosts" /etc/ssh/ssh_known_hosts
     fi
-    docker buildx inspect "${DOCKER_BUILDER}" --bootstrap &>/dev/null || docker buildx create --use --bootstrap --name "${DOCKER_BUILDER}" --platform linux/amd64 dind
+    docker buildx inspect "${DOCKER_BUILDER}" --bootstrap &>/dev/null || docker buildx create --use --bootstrap --name "${DOCKER_BUILDER}" --platform linux/amd64 dind &>/tmp/create.log || { cat /tmp/create.log; exit 100; }
     for platform in $(find "${RUNNER_CONFIG}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
       node=1
       for uri in $(find "${RUNNER_CONFIG}/builder/${platform}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n"); do
@@ -51,9 +50,6 @@ then
         ((node++)) || true
       done
     done
-    ssh-add -L
-    docker context ls
-    docker buildx ls
     printf -- "BUILDER/NATIVE: %s\n" "${DOCKER_BUILDER}"
   else
     docker run --quiet --privileged --rm tonistiigi/binfmt --install all &>/dev/null
