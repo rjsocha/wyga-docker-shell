@@ -41,10 +41,16 @@ then
     docker buildx inspect "${DOCKER_BUILDER}" --bootstrap &>/dev/null || docker buildx create --use --bootstrap --name "${DOCKER_BUILDER}" --platform linux/amd64 dind &>/tmp/create.log || { cat /tmp/create.log; exit 100; }
     for platform in $(find "${RUNNER_CONFIG}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
       node=1
+      mkdir -p ~/.ssh
       for uri in $(find "${RUNNER_CONFIG}/builder/${platform}" -maxdepth 1 -mindepth 1 -type f -printf "%f\n"); do
         [[ ${uri} =~ @ ]] || continue
         [[ -s ${RUNNER_CONFIG}/builder/${platform}/${uri} ]] || continue
-        ssh-add -q "${RUNNER_CONFIG}/builder/${platform}/${uri}"
+#        ssh-add -q "${RUNNER_CONFIG}/builder/${platform}/${uri}"
+        {
+          printf -- "Host %s\n" "${uri#*@}"
+          printf -- "  IdentityFile %s\n" "${RUNNER_CONFIG}/builder/${platform}/${uri}"
+        } >>~/.ssh/config
+        cat ~/.ssh/config
         ssh "${uri}" echo OK
         docker context create "node-${platform}-${node}" --docker "host=ssh://${uri}"
         docker buildx create --append --name "${DOCKER_BUILDER}" --platform "linux/${platform}" "node-${platform}-${node}"
