@@ -1,6 +1,6 @@
 FROM alpine:3 AS mold
 RUN apk --no-cache -U upgrade
-RUN apk --no-cache add bash coreutils findutils tar docker-cli docker-cli-buildx docker-cli-compose jq wget curl git sed gawk diffutils grep
+RUN apk --no-cache add bash coreutils findutils tar openssh-client docker-cli docker-cli-buildx docker-cli-compose jq wget curl git sed gawk diffutils grep
 COPY --chmod=755 entrypoint.sh /.entrypoint/docker-shell
 COPY --chmod=755 tools/ /usr/local/bin/
 FROM scratch
