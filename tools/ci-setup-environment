@@ -50,6 +50,9 @@ then
         ((node++)) || true
       done
     done
+    ssh-add -L
+    docker context ls
+    docker buildx ls
     printf -- "BUILDER/NATIVE: %s\n" "${DOCKER_BUILDER}"
   else
     docker run --quiet --privileged --rm tonistiigi/binfmt --install all &>/dev/null
