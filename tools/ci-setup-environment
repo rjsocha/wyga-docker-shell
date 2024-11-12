@@ -45,6 +45,7 @@ then
         [[ ${uri} =~ @ ]] || continue
         [[ -s ${RUNNER_CONFIG}/builder/${platform}/${uri} ]] || continue
         ssh-add -q "${RUNNER_CONFIG}/builder/${platform}/${uri}"
+        ssh "${uri}" echo OK
         docker context create "node-${platform}-${node}" --docker "host=ssh://${uri}"
         docker buildx create --append --name "${DOCKER_BUILDER}" --platform "linux/${platform}" "node-${platform}-${node}"
         ((node++)) || true
