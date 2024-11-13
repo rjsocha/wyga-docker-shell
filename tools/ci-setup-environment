@@ -40,6 +40,7 @@ then
       rm /tmp/rt.log.$$
       exit 100
     }
+    printf -- "local node added (amd64)\n"
     mkdir -p ~/.ssh
     :>~/.ssh/config
     for platform in $(find "${RUNNER_CONFIG}/builder" -maxdepth 1 -mindepth 1 -type d -printf "%f\n"); do
@@ -66,10 +67,11 @@ then
           rm /tmp/rt.log.$$
           exit 100
         }
+        printf -- "ssh://%s added as node-%s-%s\n" "${uri}" "${platform}" "${node}"
         ((node++)) || true
       done
     done
-    docker buildx inspect "${DOCKER_BUILDER}"
+    #docker buildx inspect "${DOCKER_BUILDER}"
     printf -- "BUILDER/NATIVE: %s\n" "${DOCKER_BUILDER}"
   else
     docker run --quiet --privileged --rm tonistiigi/binfmt --install all &>/dev/null
